@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .forms import ArticleForm, AuthUserForm, RegisterUserForm
+from .forms import ArticleForm, AuthUserForm, RegisterUserForm, CommentsForm
 from .models import Articles
 from django.urls import reverse, reverse_lazy
 from django.contrib import messages
@@ -8,17 +8,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
-
-class HomeListView(ListView):
-    model = Articles
-    template_name = 'base.html'
-    context_object_name = 'list_articles'
-
-class DetailPageListView(DetailView):
-    model = Articles
-    template_name = 'post_detail.html'
-    context_object_name = 'get_article'
-
+from django.views.generic.edit import FormMixin
 
 class CustomSuccessMessageMixin:
     @property
@@ -28,6 +18,37 @@ class CustomSuccessMessageMixin:
     def form_valid(self, form):
         messages.success(self.request, self.success_msg)
         return super().form_valid(form)
+
+class HomeListView(ListView):
+    model = Articles
+    template_name = 'base.html'
+    context_object_name = 'list_articles'
+
+class DetailPageListView(CustomSuccessMessageMixin, FormMixin, DetailView):
+    model = Articles
+    template_name = 'post_detail.html'
+    context_object_name = 'get_article'
+    form_class = CommentsForm
+    success_msg = 'Комментарий успешно создан, ожидайте модерации'
+    def get_success_url(self):
+        return reverse_lazy('detail_page', kwargs={'pk':self.get_object().id})
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.article = self.get_object()
+        self.object.author = self.request.user
+        self.object.save()
+        return super().form_valid(form)
+    
+
+
+
 
 
 class ArticleCreateView(LoginRequiredMixin, CustomSuccessMessageMixin, CreateView, ):
@@ -104,6 +125,9 @@ class ArticleDeleteView(DeleteView, LoginRequiredMixin):
         success_url = self.get_success_url()
         self.object.delete()
         return HttpResponseRedirect(success_url)
+
+
+
 
 
 

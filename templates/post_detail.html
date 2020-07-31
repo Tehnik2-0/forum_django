@@ -7,4 +7,33 @@
     <p>Дата создания: {{get_article.creation_date}}</p>
     <p>Название: {{get_article.title}}</p>
     <p>Текст: {{get_article.body}}</p>
+    <p>Комментарии ({{get_article.comments_articles.all.count}})</p>
+
+    <hr>
+    <p>Добавить Комментарий</p> 
+    {% if messages %}
+    <div class="alert alert-success">
+      {%for m in messages %}
+      {{m}}
+      {% endfor %}
+    </div>
+    {% endif %}
+    <ul>
+    {% for item in get_article.comments_articles.all %}
+    <li>
+    Дата создания:{{item.creation_date}}<br>
+    Автор комментария: {{item.author}}<br>
+    Статус:{{item.status}}<br><br>
+
+    {{item.text}}
+    </li>
+    {% endfor %}
+    <div class="col-4">
+        <form action="" id="add_form" method="post">
+            {% csrf_token %}
+            {{form.as_p}}
+        </form>
+            <button form="add_form" type="submit" class="btn btn-primary">Добавить</button>
+    </div>
+    
     {%endblock%}
