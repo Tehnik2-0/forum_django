@@ -107,25 +107,35 @@
 
   <th>{{i.id}}</th>
 
-  <td>{{i.creation_date}}</td>
+  <td>{{i.creation_date|date:'d.m.y'}} - {{i.author}}</td>
 
   <td>{{i.title}}</td>
 
-  <td><a href="{% url 'update_page' i.id %}" >редактировать</a></td>
-  
-
   <td>
-    <form id="delete_form" action="{% url 'delete_page' i.id %}" method="POST">{% csrf_token %}</form>
+    {% if request.user == i.author %}
+    
+    <a href="{% url 'update_page' i.id %}" >редактировать</a>
+    {% else %}
+    нет доступа
+    {% endif %}
+  </td>
+  <td>
 
-    <a href="javascript:void()" onclick="delete_qestion()">удалить</a>
+    {% if request.user == i.author %}
+    
+    <form id="delete_form{{i.id}}" action="{% url 'delete_page' i.id %}" method="POST">{% csrf_token %}</form>
+
+    <a href="javascript:void()" onclick="delete_qestion{{i.id}}()">удалить</a>
     <script>
-      function delete_qestion() {
+      function delete_qestion{{i.id}}() {
         if (confirm("Вы уверены")) {
-          document.getElementById('delete_form').submit()
+          document.getElementById('delete_form{{i.id}}').submit()
         }
       }
     </script>
-  
+  {% else %}
+  нет доступа
+  {% endif %}
   </td>
 
 </tr>
