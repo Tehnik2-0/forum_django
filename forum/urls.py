@@ -11,4 +11,7 @@ urlpatterns = [
     path('login', views.ForumLoginView.as_view(), name='login_page'),
     path('register', views.RegisterUserView.as_view(), name='register_page'),
     path('logout', views.ForumLogoutView.as_view(), name='logout_page'),
+    
+    #ajax
+    path('update_comment_status/<int:pk>/<slug:type>', views.update_comment_status, name='update_comment_status'),
 ]

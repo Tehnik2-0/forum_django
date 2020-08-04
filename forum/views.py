@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import FormMixin
+from django.http import HttpResponseRedirect
 
 class CustomSuccessMessageMixin:
     @property
@@ -19,10 +20,12 @@ class CustomSuccessMessageMixin:
         messages.success(self.request, self.success_msg)
         return super().form_valid(form)
 
+
 class HomeListView(ListView):
     model = Articles
     template_name = 'base.html'
     context_object_name = 'list_articles'
+
 
 class DetailPageListView(CustomSuccessMessageMixin, FormMixin, DetailView):
     model = Articles
@@ -46,10 +49,6 @@ class DetailPageListView(CustomSuccessMessageMixin, FormMixin, DetailView):
         self.object.save()
         return super().form_valid(form)
     
-
-
-
-
 
 class ArticleCreateView(LoginRequiredMixin, CustomSuccessMessageMixin, CreateView, ):
     login_url = reverse_lazy('login_page')
@@ -84,12 +83,14 @@ class ArticleUpdateView(CustomSuccessMessageMixin, UpdateView, LoginRequiredMixi
             return self.handle_no_permission()
         return kwargs
 
+
 class ForumLoginView(LoginView):
     template_name = 'login.html'
     form_class = AuthUserForm
     success_url = reverse_lazy('edit_page')
     def get_success_url(self):
         return self.success_url
+
 
 class RegisterUserView(CreateView):
     model = User
@@ -105,6 +106,7 @@ class RegisterUserView(CreateView):
         aut_user = authenticate(username=username, password=password)
         login(self.request, aut_user)
         return form_valid
+
 
 class ForumLogoutView(LogoutView):
     next_page = reverse_lazy('edit_page')
@@ -126,7 +128,8 @@ class ArticleDeleteView(DeleteView, LoginRequiredMixin):
         self.object.delete()
         return HttpResponseRedirect(success_url)
 
-
+def update_comment_status(request, pk, type):
+    return HttpResponse('1')
 
 
 
