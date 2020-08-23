@@ -1,18 +1,9 @@
 <!-- templates/home.html -->
 {% extends 'base.html' %}
- 
-
 
 {% block content %}
 
 <h1 class="mt-4">Админ панель</h1>
-
-
-
-
-
-
-
 <!-- Button trigger modal -->
 
 <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
@@ -20,16 +11,10 @@
 Добавить новую статью
 
 </button>
-
-
-
-
-
 {% if success %}
-
 <p style="color:red">Запись добавлена</p>
-
 {% endif %}
+
 {% if messages %}
 <div class="alert alert-success">
   {%for m in messages %}
@@ -37,94 +22,44 @@
   {% endfor %}
 </div>
 {% endif %}
-
-
-
-
-
 {% if update %}
-
-
-
 {% if success_update %}
-
 <p style="color:red">Запись обновлена</p>
-
 {% endif %}
-
 <p class="mt-4">Страница редактирования</p>
-
 <p><a href="{% url 'edit_page' %}">Вернуться назад</a></p>
-
-
-
 <form id="update_data" method="post">
         {% csrf_token %}
-
         {{form}}
-
     </form>
-
 <button form="update_data" type="submit" class="btn btn-primary">Обновить</button>
-
-
-
 {% else %}
-
-
-
-
-
-
-
 <table class="table table-bordered mt-4">
-
 <thead>
-
 <tr>
-
   <th scope="col">id</th>
-
   <th scope="col">Дата создания</th>
-
   <th scope="col">Название</th>
-
   <th scope="col">Редактирование</th>
-
   <th scope="col">Удаление</th>
-
 </tr>
-
 </thead>
-
 <tbody>
-
-  
-
-  {% for i in list_articles %}
-
+    {% for i in list_articles %}
 <tr>
-
   <th>{{i.id}}</th>
-
   <td>{{i.creation_date|date:'d.m.y'}} - {{i.author}}</td>
-
   <td>{{i.title}}</td>
-
   <td>
     {% if request.user == i.author %}
-    
     <a href="{% url 'update_page' i.id %}" >редактировать</a>
     {% else %}
     нет доступа
     {% endif %}
   </td>
   <td>
-
     {% if request.user == i.author %}
-    
     <form id="delete_form{{i.id}}" action="{% url 'delete_page' i.id %}" method="POST">{% csrf_token %}</form>
-
     <a href="javascript:void()" onclick="delete_qestion{{i.id}}()">удалить</a>
     <script>
       function delete_qestion{{i.id}}() {
@@ -137,29 +72,11 @@
   нет доступа
   {% endif %}
   </td>
-
 </tr>
-
 {% endfor %}
-
-
-
 </tbody>
-
 </table>
-
-
-
 {% endif %}
-
-
-
-
-
-
-
-
-
 <!-- Modal -->
 
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
