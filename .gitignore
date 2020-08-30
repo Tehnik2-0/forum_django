@@ -1,9 +1,0 @@
-/env
-.vscode
-11111
-11111.pub
-.env
-/venv
-.idea
-db.sqlite3
-.gitignore
