@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, HttpResponse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .forms import ArticleForm, AuthUserForm, RegisterUserForm, CommentsForm
-from .models import Articles, Comments
+from .models import Article, Comment
 from django.urls import reverse, reverse_lazy
 from django.contrib import messages
 from django.contrib.auth.views import LoginView, LogoutView
@@ -11,6 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import FormMixin
 from django.http import HttpResponseRedirect
 from django.template import Context, Template
+from django.views.generic.list import MultipleObjectMixin
 
 
 class CustomSuccessMessageMixin:
@@ -24,17 +25,23 @@ class CustomSuccessMessageMixin:
 
 
 class HomeListView(ListView):
-    model = Articles
+    model = Article
     template_name = 'base.html'
     context_object_name = 'list_articles'
 
 
-class DetailPageListView(CustomSuccessMessageMixin, FormMixin, DetailView):
-    model = Articles
+class DetailPageListView(CustomSuccessMessageMixin, FormMixin, DeleteView, MultipleObjectMixin):
+    model = Article
     template_name = 'post_detail.html'
     context_object_name = 'get_article'
     form_class = CommentsForm
     success_msg = 'Комментарий успешно создан, ожидайте модерации'
+    paginate_by = 20
+
+    def get_context_data(self, **kwargs):
+        object_list = Comment.objects.filter(article=self.get_object())
+        context = super(DetailPageListView, self).get_context_data(object_list=object_list, **kwargs)
+        return context
 
     def get_success_url(self):
         return reverse_lazy('detail_page', kwargs={'pk': self.get_object().id})
@@ -55,7 +62,7 @@ class DetailPageListView(CustomSuccessMessageMixin, FormMixin, DetailView):
 
 
 def update_comment_status(request, pk, type):
-    item = Comments.objects.get(pk=pk)
+    item = Comment.objects.get(pk=pk)
     if request.user != item.article.author:
         return HttpResponse('deny')
 
@@ -70,14 +77,14 @@ def update_comment_status(request, pk, type):
 
 class ArticleCreateView(LoginRequiredMixin, CustomSuccessMessageMixin, CreateView, ):
     login_url = reverse_lazy('login_page')
-    model = Articles
+    model = Article
     template_name = 'edit_page.html'
     form_class = ArticleForm
     success_url = reverse_lazy('edit_page')
     success_msg = 'Запись создана'
 
     def get_context_data(self, **kwargs):
-        kwargs['list_articles'] = Articles.objects.all().order_by('-id')
+        kwargs['list_articles'] = Article.objects.all().order_by('-id')
         return super().get_context_data(**kwargs)
 
     def form_valid(self, form):
@@ -88,8 +95,7 @@ class ArticleCreateView(LoginRequiredMixin, CustomSuccessMessageMixin, CreateVie
 
 
 class ArticleUpdateView(CustomSuccessMessageMixin, UpdateView, LoginRequiredMixin):
-    
-    model = Articles
+    model = Article
     template_name = 'edit_page.html'
     form_class = ArticleForm
     success_url = reverse_lazy('edit_page')
@@ -136,7 +142,7 @@ class ForumLogoutView(LogoutView):
 
 
 class ArticleDeleteView(DeleteView, LoginRequiredMixin):
-    model = Articles
+    model = Article
     template_name = 'edit_page.html'
     success_url = reverse_lazy('edit_page')
     success_msg = 'Запись удалена'

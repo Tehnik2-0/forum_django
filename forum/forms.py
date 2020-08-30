@@ -1,5 +1,5 @@
 from django import forms
-from .models import Articles, Comments
+from .models import Article, Comment
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.forms import Textarea
@@ -7,7 +7,7 @@ from django.forms import Textarea
 
 class ArticleForm(forms.ModelForm):
     class Meta:
-        model = Articles
+        model = Article
         fields = ('title', 'body')
 
     def __init__(self, *args, **kwargs):
@@ -47,7 +47,7 @@ class RegisterUserForm(forms.ModelForm):
 
 class CommentsForm(forms.ModelForm):
     class Meta:
-        model = Comments
+        model = Comment
         fields = ('body',)
 
     def __init__(self, *args, **kwargs):
