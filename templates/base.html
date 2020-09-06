@@ -42,10 +42,12 @@
           <li class="nav-item">
             {% url 'register_page' as url_register_page %}
             <a class="nav-link nav-link {% if url_register_page == request.path %} active{% endif %}" href="{{url_register_page}}">Регистрация</a>
+
           </li>
           {% endif %}
-          
+
         </ul>
+      {{ user.username }}
     {%block content%}
 
   
@@ -53,8 +55,13 @@
     <ul class="list-group mt-4">
     <li class="list-group-item">
       <b>{{i.create_date}}</b>
+        {% if request.user.is_authenticated %}
       <span class="m-2">{{i.title}}</span>
       <span class="float-right mt-3"><a href="/detail/{{i.id}}">перейти к статье</a></span>
+        {% else %}
+        <span class="m-2">{{i.title}}</span>
+      <span class="float-right mt-3"><a >Что-бы перейти к статье сначала войдите</a></span>
+        {% endif %}
     </li>
     </ul>
     {% endfor %}
