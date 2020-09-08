@@ -35,3 +35,6 @@ class Comment(models.Model):
     body = models.TextField(verbose_name='Текст комментария')
     status = models.BooleanField(verbose_name='Видимость статьи', default=True)
     objects = StatusFilterComment()
+
+    class Meta:
+        ordering = ['-id']
