@@ -25,7 +25,10 @@ class Article(models.Model):
 
 class StatusFilterComment(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(Q(status=False, author=get_current_user()) | Q(status=False, article__author=get_current_user()) | Q(status=True))
+        if get_current_user() == 'None':
+            return super().get_queryset().filter(Q(status=False, author=get_current_user()) | Q(status=False, article__author=get_current_user()) | Q(status=True))
+        else:
+            return super().get_queryset().filter(Q(status=True))
 
 
 class Comment(models.Model):
