@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, HttpResponse
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .forms import ArticleForm, AuthUserForm, RegisterUserForm, CommentsForm
 from .models import Article, Comment
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.contrib import messages
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.models import User
@@ -10,7 +10,6 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.edit import FormMixin
 from django.http import HttpResponseRedirect
-from django.template import Context, Template
 from django.views.generic.list import MultipleObjectMixin
 
 
@@ -20,7 +19,8 @@ class CustomSuccessMessageMixin:
         return False
 
     def form_valid(self, form):
-        messages.success(self.request, self.success_msg)
+        messages.success(self.request,
+                         self.success_msg)
         return super().form_valid(form)
 
 
@@ -40,20 +40,26 @@ class DetailPageListView(CustomSuccessMessageMixin, FormMixin, DeleteView, Multi
 
     def get_context_data(self, **kwargs):
         object_list = Comment.objects.filter(article=self.get_object())
-        context = super(DetailPageListView, self).get_context_data(object_list=object_list, **kwargs)
+        context = super(DetailPageListView, self).get_context_data(object_list=object_list,
+                                                                   **kwargs)
         return context
 
     def get_success_url(self):
-        return reverse_lazy('detail_page', kwargs={'pk': self.get_object().id})
+        return reverse_lazy('detail_page',
+                            kwargs={'pk': self.get_object().i})
 
-    def post(self, request, *args, **kwargs):
+    def post(self,
+             request,
+             *args,
+             **kwargs):
         form = self.get_form()
         if form.is_valid():
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
 
-    def form_valid(self, form):
+    def form_valid(self,
+                   form):
         self.object = form.save(commit=False)
         self.object.article = self.get_object()
         self.object.author = self.request.user
@@ -61,7 +67,9 @@ class DetailPageListView(CustomSuccessMessageMixin, FormMixin, DeleteView, Multi
         return super().form_valid(form)
 
 
-def update_comment_status(request, pk, type):
+def update_comment_status(request,
+                          pk,
+                          type):
     item = Comment.objects.get(pk=pk)
     if request.user != item.article.author:
         return HttpResponse('deny')
@@ -72,7 +80,8 @@ def update_comment_status(request, pk, type):
     if type == 'delete':
         item.delete()
         template = 'delete_comment.html'
-        return render(request, template)
+        return render(request,
+                      template)
 
 
 class ArticleCreateView(LoginRequiredMixin, CustomSuccessMessageMixin, CreateView, ):
@@ -83,7 +92,8 @@ class ArticleCreateView(LoginRequiredMixin, CustomSuccessMessageMixin, CreateVie
     success_url = reverse_lazy('edit_page')
     success_msg = 'Запись создана'
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self,
+                         **kwargs):
         kwargs['list_articles'] = Article.objects.all().order_by('-id')
         return super().get_context_data(**kwargs)
 
@@ -101,7 +111,8 @@ class ArticleUpdateView(CustomSuccessMessageMixin, UpdateView, LoginRequiredMixi
     success_url = reverse_lazy('edit_page')
     success_msg = 'Запись обновлена'
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self,
+                         **kwargs):
         kwargs['update'] = True
         return super().get_context_data(**kwargs)
 
@@ -128,12 +139,15 @@ class RegisterUserView(CreateView):
     success_url = reverse_lazy('edit_page')
     success_msg = 'Пользователь успешно создан'
 
-    def form_valid(self, form):
+    def form_valid(self,
+                   form):
         form_valid = super().form_valid(form)
         username = form.cleaned_data['username']
         password = form.cleaned_data['password']
-        aut_user = authenticate(username=username, password=password)
-        login(self.request, aut_user)
+        aut_user = authenticate(username=username,
+                                password=password)
+        login(self.request,
+              aut_user)
         return form_valid
 
 
@@ -147,11 +161,18 @@ class ArticleDeleteView(DeleteView, LoginRequiredMixin):
     success_url = reverse_lazy('edit_page')
     success_msg = 'Запись удалена'
 
-    def post(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_msg)
+    def post(self,
+             request,
+             *args,
+             **kwargs):
+        messages.success(self.request,
+                         self.success_msg)
         return super().post(request)
 
-    def delete(self, request, *args, **kwargs):
+    def delete(self,
+               request,
+               *args,
+               **kwargs):
         self.object = self.get_object()
         if self.request.user != self.object.author:
             return self.handle_no_permission()

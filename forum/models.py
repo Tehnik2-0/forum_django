@@ -6,13 +6,16 @@ from django.db.models import Q
 
 class Article(models.Model):
     creation_date = models.DateTimeField(auto_now=True)
-    title = models.CharField(max_length=200, verbose_name='Название')
+    title = models.CharField(
+                            max_length=200,
+                            verbose_name='Название'
+                            )
     author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True
-    )
+                            User,
+                            on_delete=models.CASCADE,
+                            blank=True,
+                            null=True
+                            )
     body = models.TextField()
  
     def __str__(self):
@@ -26,17 +29,37 @@ class Article(models.Model):
 class StatusFilterComment(models.Manager):
     def get_queryset(self):
         if get_current_user() == 'None':
-            return super().get_queryset().filter(Q(status=False, author=get_current_user()) | Q(status=False, article__author=get_current_user()) | Q(status=True))
+            return super().get_queryset().filter(
+                                                Q(status=False,
+                                                  author=get_current_user()) |
+                                                Q(status=False,
+                                                  article__author=get_current_user()) |
+                                                Q(status=True))
         else:
             return super().get_queryset().filter(Q(status=True))
 
 
 class Comment(models.Model):
-    article = models.ForeignKey(Article, on_delete=models.CASCADE, verbose_name='Статья', blank=True, null=True, related_name='comments_articles')
-    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Автор коментария', blank=True, null=True)
+    article = models.ForeignKey(
+                                Article,
+                                on_delete=models.CASCADE,
+                                verbose_name='Статья',
+                                blank=True, null=True,
+                                related_name='comments_articles'
+                                )
+    author = models.ForeignKey(
+                                User,
+                                on_delete=models.CASCADE,
+                                verbose_name='Автор коментария',
+                                blank=True,
+                                null=True
+                                )
     creation_date = models.DateTimeField(auto_now=True)
     body = models.TextField(verbose_name='Текст комментария')
-    status = models.BooleanField(verbose_name='Видимость статьи', default=True)
+    status = models.BooleanField(
+                                verbose_name='Видимость статьи',
+                                default=True
+                                )
     objects = StatusFilterComment()
 
     class Meta:
