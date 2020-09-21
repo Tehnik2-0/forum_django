@@ -76,14 +76,14 @@ WSGI_APPLICATION = 'forum_project.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+        'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB'),
-        'USER': os.getenv('POSTGRES_USER'),
-        'HOST': os.getenv('POSTGRES_HOST'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'PORT': 5432,
-    }
+        'NAME': os.environ.get('POSTGRES_DB', default='postgres'),
+        'USER': os.environ.get('POSTGRES_USER', default='postgres'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', default='postgres'),
+        'HOST': os.environ.get('POSTGRES_HOST', default='db'),
+        'PORT': "5432"
+        }
 }
 
 
@@ -125,4 +125,5 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+ALLOWED_HOSTS = ['*']
 
